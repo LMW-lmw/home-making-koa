@@ -22,7 +22,7 @@ app.use(
     secret: private_key,
     algorithms: ['RS256'],
   }).unless({
-    path: ['/login'],
+    path: ['/login', '/city'],
   })
 )
 

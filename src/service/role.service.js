@@ -120,28 +120,31 @@ class RoleService {
     }
     let sqlData = await pool.execute(sql)
     let allRole = sqlData[0]
+    function getChildRoleId(child, id) {
+      child.forEach((item) => {
+        item.roleid = id
+        if (item.children.length !== 0) {
+          getChildRoleId(item.children, id)
+        } else {
+          return
+        }
+      })
+    }
+    console.log(allRole)
     for (let i in allRole) {
       allRole[i].menuList = []
       let id = allRole[i].id
       let sql1 = `select * from menu where id in (select menuid from maprole where roleid = ${id}) and type = 1`
       let sql1Data = await pool.execute(sql1)
       let sql1dbData = sql1Data[0]
+      console.log('i', i, sql1dbData)
+      console.log('i', i, sql1)
       await getData(sql1dbData, id)
       allRole[i].menuList = sql1dbData
       allRole[i].menuList.forEach((item) => {
         item.roleid = id
         getChildRoleId(item.children, id)
       })
-      function getChildRoleId(child, id) {
-        child.forEach((item) => {
-          item.roleid = id
-          if (item.children.length !== 0) {
-            getChildRoleId(item.children, id)
-          } else {
-            return
-          }
-        })
-      }
     }
     let sql3 = `select count(*) as totalCount from role`
     let sql3Data = await pool.execute(sql3)
